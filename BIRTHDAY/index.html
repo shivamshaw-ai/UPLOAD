@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universe of Shaloni | A Birthday Odyssey</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=200;400;700;900&family=Playfair+Display:ital,wght=0,700;0,900;1,700&family=Dancing+Script:wght=400;700&family=Caveat:wght=400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --accent: #ff7eb3;
+            --secondary: #8e54e9;
+            --gold: #ffcf5f;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            background-color: #020205;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            cursor: none;
+            scroll-behavior: smooth;
+        }
+
+        #blur-wrapper {
+            transition: filter 0.8s ease, transform 0.8s ease;
+        }
+
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+        }
+
+        .handwriting-font {
+            font-family: 'Caveat', cursive;
+            line-height: 1.4;
+            letter-spacing: 0.02em;
+        }
+        
+        .handwriting-title {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        .text-glow {
+            text-shadow: 0 0 20px rgba(255, 126, 179, 0.5), 0 0 40px rgba(255, 126, 179, 0.3);
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #ff7eb3, #ff758c, #8e54e9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #bg-canvas {
+            position: fixed; top: 0; left: 0; z-index: -1;
+            width: 100vw; height: 100vh;
+        }
+
+        #cursor-dot { width: 6px; height: 6px; background: white; position: fixed; border-radius: 50%; pointer-events: none; z-index: 9999; }
+        #cursor-ring { width: 35px; height: 35px; border: 1px solid rgba(255,255,255,0.4); position: fixed; border-radius: 50%; pointer-events: none; z-index: 9999; transition: transform 0.1s ease-out; }
+
+        video, button, a, .modern-gift-container, input, select {
+            cursor: pointer;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%; top: 0; bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, var(--accent), var(--secondary), transparent);
+            transform: translateX(-50%);
+            z-index: -1;
+        }
+
+        .chapter-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .memory-card {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transition: transform 0.4s ease;
+        }
+        
+        .memory-card:hover {
+            transform: scale(1.02);
+            border-color: var(--accent);
+        }
+
+        .memory-img-container {
+            width: 100%;
+            aspect-ratio: 1/1;
+            overflow: hidden;
+            border-radius: 20px;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .memory-img-overlay-text {
+            position: absolute;
+            color: white;
+            font-weight: 700;
+            font-size: 1.25rem;
+            z-index: 2;
+            text-align: center;
+            padding: 0 1rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .modern-gift-container {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .modern-gift-container:hover { transform: scale(1.1) rotate(2deg); }
+        
+        .modern-gift-box {
+            width: 100%; height: 100%;
+            background: linear-gradient(45deg, #a855f7, #ec4899);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(236, 72, 153, 0.4);
+        }
+
+        .gift-ribbon-v {
+            position: absolute; left: 50%; top: 0; bottom: 0; width: 45px;
+            background: rgba(251, 191, 36, 0.9); transform: translateX(-50%);
+        }
+        .gift-ribbon-h {
+            position: absolute; top: 50%; left: 0; right: 0; height: 45px;
+            background: rgba(251, 191, 36, 0.9); transform: translateY(-50%);
+        }
+
+        .flame-container {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 30px;
+        }
+
+        .flame {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 100%, #ffcf5f 20%, #ff7eb3 50%, #8e54e9 100%);
+            border-radius: 50% 50% 20% 20%;
+            box-shadow: 0 0 25px rgba(255, 126, 179, 0.8);
+            animation: flicker-base 0.1s infinite alternate;
+            transform-origin: bottom center;
+            transition: opacity 0.5s ease;
+        }
+        @keyframes flicker-base { 
+            0% { transform: scale(1) rotate(-1deg); } 
+            100% { transform: scale(1.05) rotate(1deg); } 
+        }
+
+        #audio-control { position: fixed; top: 20px; right: 20px; z-index: 100; }
+        
+        .css-heart {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            background-color: #ff7eb3;
+            transform: rotate(-45deg);
+            box-shadow: 0 0 15px rgba(255, 126, 179, 0.6);
+        }
+        .css-heart::before, .css-heart::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #ff7eb3;
+            border-radius: 50%;
+        }
+        .css-heart::before { top: -10px; left: 0; }
+        .css-heart::after { left: 10px; top: 0; }
+
+        @keyframes floatLeaf {
+            0%, 100% { transform: translateY(0) rotate(-45deg) scale(1); }
+            50% { transform: translateY(-6px) rotate(-40deg) scale(1.1); }
+        }
+        .leaf-anim {
+            animation: floatLeaf 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="cursor-dot"></div>
+    <div id="cursor-ring"></div>
+    <canvas id="bg-canvas"></canvas>
+
+    <div id="audio-control" class="hidden">
+        <button onclick="toggleAudio()" class="glass p-3 rounded-full hover:scale-110 transition-transform">
+            <span id="audio-icon">🔇</span>
+        </button>
+    </div>
+
+    <!-- Letter Overlay -->
+    <div id="letter-overlay" class="fixed inset-0 z-[200] flex items-center justify-center hidden opacity-0 transition-all duration-700">
+        <div class="glass p-10 md:p-16 max-w-xl mx-6 relative border-pink-500/30 shadow-[0_0_100px_rgba(236,72,153,0.2)] bg-black/60 backdrop-blur-2xl">
+            <button onclick="closeLetter()" class="absolute top-6 right-8 text-3xl text-white/40 hover:text-white transition-colors">X</button>
+            <h4 class="text-4xl mb-8 text-pink-300 handwriting-title">To my favorite soul,</h4>
+            <div class="space-y-6 text-2xl handwriting-font text-white/90">
+                <p>You make the life brighter just by existing, Honestly you're my very Special, Life feels brighter,happier and a little more special with you in it</p>
+                <p>Yaad hai wo din late-night talks, the uncontrolled laughs, roasting each other and aaj bhi ham saath mein hai or rahenge. Never forget I am always with you in every moment.You deserve a universe of happiness today and every day .I'm grateful to have you.❤️ </p>
+            </div>
+            <div class="mt-12 handwriting-title text-3xl text-pink-200">
+                Your, Shivam ❤️
+            </div>
+        </div>
+    </div>
+
+    <!-- Loader -->
+    <div id="loader" class="fixed inset-0 z-[300] bg-black flex flex-col items-center justify-center p-6 text-center">
+        <div id="loader-text" class="text-xl md:text-2xl font-light tracking-[0.4em] opacity-0">LOADING.. </div>
+        <div class="mt-8 w-64 h-[1px] bg-white/10 overflow-hidden">
+            <div id="loader-bar" class="h-full bg-white w-0"></div>
+        </div>
+        <button id="entry-btn" class="mt-12 px-10 py-3 rounded-full border border-white/20 hover:bg-white text-black hover:text-black transition-all duration-700 opacity-0 scale-90 hidden bg-white">
+            OPEN YOUR SURPRISE
+        </button>
+    </div>
+
+    <div id="main-content">
+        <!-- Overlay specifically for cinematic video focusing (replaces the global container blur which ruined resolution) -->
+        <div id="video-backdrop-overlay" class="fixed inset-0 bg-black/85 backdrop-blur-xl z-[45] opacity-0 pointer-events-none transition-opacity duration-1000"></div>
+
+        <div id="blur-wrapper">
+            <!-- Hero -->
+            <section class="min-h-screen flex flex-col items-center justify-center relative p-8" id="hero">
+                <div id="hero-ui" class="opacity-0 translate-y-10 text-center">
+                    <h2 class="text-white/40 tracking-[0.5em] text-xs uppercase mb-4">A Birthday journey</h2>
+                    <h1 class="text-6xl md:text-[8rem] font-black gradient-text leading-none mb-8" style="font-family: 'Playfair Display', serif;">HAPPY BIRTHDAY</h1>
+                    <p class="text-3xl md:text-5xl font-light tracking-widest text-glow">SHALONI</p>
+                    <div class="mt-12 flex justify-center gap-6">
+                        <button onclick="scrollToNext('#memories')" class="px-8 py-3 glass text-[10px] tracking-widest uppercase hover:bg-white/10 transition-all">Start Exploring</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Memories Section -->
+            <section class="min-h-screen relative py-20 overflow-hidden" id="memories">
+                <div class="text-center mb-32 px-4">
+                    <h2 class="text-5xl font-serif gradient-text">Captured Fragments</h2>
+                    <p class="text-white/30 tracking-widest uppercase text-[10px] mt-4">A Story Told in Starlight</p>
+                </div>
+                
+                <div class="max-w-5xl mx-auto px-6 relative">
+                    <div class="timeline-line"></div>
+                    <div class="space-y-48">
+                        <!-- Chapter 1 (Photo 1) -->
+                        <div class="memory-item flex flex-col md:flex-row items-center gap-8 md:gap-20" data-direction="left">
+                            <div class="w-full md:w-1/2 text-center md:text-right">
+                                <div class="chapter-label">Chapter One</div>
+                                <h3 class="text-3xl font-serif mb-4">MoonLight</h3>
+                                <p class="text-white/60 font-light max-w-sm ml-auto">Today one elegant piece of Moon fall into the earth which look like this</p>
+                            </div>
+                            <div class="w-full md:w-1/2 memory-visual">
+                                <div class="memory-card">
+                                    <div class="memory-img-container">
+                                        <span class="memory-img-overlay-text"></span>
+                                        <img src="IMG1.jpg" class="w-full h-full object-cover opacity-100" alt="Memory 1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chapter 2 (Photo 2) -->
+                        <div class="memory-item flex flex-col md:flex-row-reverse items-center gap-8 md:gap-20" data-direction="right">
+                            <div class="w-full md:w-1/2 text-center md:text-left">
+                                <div class="chapter-label">Chapter Two</div>
+                                <h3 class="text-3xl font-serif mb-4">The Gorgeous Smile</h3>
+                                <p class="text-white/60 font-light max-w-sm mr-auto">Every smile of yours feels like my favourite memory replaying again</p>
+                            </div>
+                            <div class="w-full md:w-1/2 memory-visual">
+                                <div class="memory-card">
+                                    <div class="memory-img-container">
+                                        <span class="memory-img-overlay-text"></span>
+                                        <img src="IMG2.jpg" class="w-full h-full object-cover opacity-100" alt="Memory 2">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chapter 3 (Video 1) -->
+                        <div class="memory-item flex flex-col md:flex-row items-center gap-8 md:gap-20" data-direction="left">
+                            <div class="w-full md:w-1/2 text-center md:text-right">
+                                <div class="chapter-label">Chapter Three</div>
+                                <h3 class="text-3xl font-serif mb-4">Hayee ! The Elegant Look</h3>
+                                <p class="text-white/60 font-light max-w-sm ml-auto">The way you look feels more magical even without trying .Seriously.. what's the secret behind this gorgeous look ? </p>
+                            </div>
+                            <div class="w-full md:w-1/2 memory-visual">
+                                <div class="memory-card">
+                                    <div class="memory-img-container">
+                                        <video src="first.mp4" loop muted playsinline class="w-full h-full object-cover rounded-2xl memory-video-element"></video>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chapter 4 (Photo 3) -->
+                        <div class="memory-item flex flex-col md:flex-row-reverse items-center gap-8 md:gap-20" data-direction="right">
+                            <div class="w-full md:w-1/2 text-center md:text-left">
+                                <div class="chapter-label">Chapter Four</div>
+                                <h3 class="text-3xl font-serif mb-4">Supernova Smile</h3>
+                                <p class="text-white/60 font-light max-w-sm mr-auto">If stars could smile, they'd probably jealously of you because your smile hits amazing</p>
+                            </div>
+                            <div class="w-full md:w-1/2 memory-visual">
+                                <div class="memory-card">
+                                    <div class="memory-img-container">
+                                        <span class="memory-img-overlay-text"></span>
+                                        <img src="IMG4.jpg" class="w-full h-full object-cover opacity-100" alt="Memory 3">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chapter 5 (Photo 4) -->
+                        <div class="memory-item flex flex-col md:flex-row items-center gap-8 md:gap-20" data-direction="left">
+                            <div class="w-full md:w-1/2 text-center md:text-right">
+                                <div class="chapter-label">Chapter Five</div>
+                                <h3 class="text-3xl font-serif mb-4">Stolen Glances</h3>
+                                <p class="text-white/60 font-light max-w-sm ml-auto">Your Little expressions are honestly my favourtie thing ever</p>
+                            </div>
+                            <div class="w-full md:w-1/2 memory-visual">
+                                <div class="memory-card">
+                                    <div class="memory-img-container">
+                                        <span class="memory-img-overlay-text"></span>
+                                        <img src="IMG5.jpg" class="w-full h-full object-cover opacity-100" alt="Memory 4">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chapter 6 (Video 2) -->
+                        <div class="memory-item flex flex-col md:flex-row-reverse items-center gap-8 md:gap-20" data-direction="right">
+                            <div class="w-full md:w-1/2 text-center md:text-left">
+                                <div class="chapter-label">Chapter Six</div>
+                                <h3 class="text-3xl font-serif mb-4">Cosmic Beauty</h3>
+                                <p class="text-white/60 font-light max-w-sm mr-auto">In every version of you ,I find something beautiful to admire</p>
+                            </div>
+                            <div class="w-full md:w-1/2 memory-visual">
+                                <div class="memory-card">
+                                    <div class="memory-img-container">
+                                        <video src="second.mp4" loop muted playsinline class="w-full h-full object-cover rounded-2xl memory-video-element"></video>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chapter 7 (Photo 5) -->
+                        <div class="memory-item flex flex-col md:flex-row items-center gap-8 md:gap-20" data-direction="left">
+                            <div class="w-full md:w-1/2 text-center md:text-right">
+                                <div class="chapter-label">Chapter Seven</div>
+                                <h3 class="text-3xl font-serif mb-4">Moonlight Magic</h3>
+                                <p class="text-white/60 font-light max-w-sm ml-auto">No matter how many stars exist,my eyes still search for Moon which is you.</p>
+                            </div>
+                            <div class="w-full md:w-1/2 memory-visual">
+                                <div class="memory-card">
+                                    <div class="memory-img-container">
+                                        <span class="memory-img-overlay-text"></span>
+                                        <img src="IMG7.jpg" class="w-full h-full object-cover opacity-100" alt="Memory 5">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chapter 8 (Photo 6) -->
+                        <div class="memory-item flex flex-col md:flex-row-reverse items-center gap-8 md:gap-20" data-direction="right">
+                            <div class="w-full md:w-1/2 text-center md:text-left">
+                                <div class="chapter-label">Chapter Eight</div>
+                                <h3 class="text-3xl font-serif mb-4">Galaxy Glow</h3>
+                                <p class="text-white/60 font-light max-w-sm mr-auto">Some people shine.. you glow like an entire galaxy full of stars.</p>
+                            </div>
+                            <div class="w-full md:w-1/2 memory-visual">
+                                <div class="memory-card">
+                                    <div class="memory-img-container">
+                                        <span class="memory-img-overlay-text"></span>
+                                        <img src="IMG8.jpg" class="w-full h-full object-cover opacity-100" alt="Memory 6">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chapter 9 (Photo 7) -->
+                        <div class="memory-item flex flex-col md:flex-row items-center gap-8 md:gap-20" data-direction="left">
+                            <div class="w-full md:w-1/2 text-center md:text-right">
+                                <div class="chapter-label">Chapter Nine</div>
+                                <h3 class="text-3xl font-serif mb-4">Infinite Bond</h3>
+                                <p class="text-white/60 font-light max-w-sm ml-auto">It's been 10 years and we are still and will be together forever</p>
+                            </div>
+                            <div class="w-full md:w-1/2 memory-visual">
+                                <div class="memory-card">
+                                    <div class="memory-img-container">
+                                        <span class="memory-img-overlay-text"></span>
+                                        <img src="IMG9.jpg" class="w-full h-full object-cover opacity-100" alt="Memory 7">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cake Section -->
+            <section class="min-h-screen flex flex-col items-center justify-center relative p-8" id="cake-section">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-serif mb-4">It's Time for Cake Cut </h2>
+                    <p class="text-white/40 italic">Mouse ko flame ke pass lekr jaa and jldi jldi idhar udhar move kr </p>
+                </div>
+                <div id="cake-container" class="relative">
+                    <div class="flame-container">
+                        <div class="flame" id="cake-flame"></div>
+                    </div>
+                    <div id="blow-sensor" class="absolute inset-0 z-10 w-full h-full cursor-none"></div>
+                    <svg id="cake-svg" viewBox="0 0 100 100" class="w-64 h-64 drop-shadow-[0_0_30px_rgba(255,126,179,0.2)]">
+                        <!-- Bottom plate -->
+                        <path d="M15,85 Q50,75 85,85 L85,90 Q50,80 15,90 Z" fill="#444" opacity="0.3" />
+                        <!-- Stand base -->
+                        <path d="M20,80 Q50,70 80,80 L80,95 Q50,85 20,95 Z" fill="#fdfcfb" opacity="0.9"/>
+                        <!-- Cake Body -->
+                        <path d="M25,65 Q50,55 75,65 L75,80 Q50,70 25,80 Z" fill="#ffdde1" />
+                        <!-- Interactive Cutable Slice (Animates Outward) -->
+                        <path id="cake-slice-path" d="M40,60 Q50,55 60,60 L60,80 Q50,70 40,80 Z" fill="#ff7eb3" />
+                        <!-- Candle -->
+                        <rect id="cake-candle" x="47.5" y="30" width="5" height="35" rx="2" fill="#ff7eb3" />
+                    </svg>
+
+                    <!-- Falling Piece Overlay (Hidden until blown) -->
+                    <div id="falling-slice" class="absolute top-[60%] left-[40%] opacity-0 pointer-events-none z-50 w-16 h-16 origin-center">
+                        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_5px_15px_rgba(255,126,179,0.4)]">
+                            <path d="M15,25 L50,5 L85,25 L50,85 Z" fill="#ffdde1" />
+                            <path d="M15,25 L50,85 L50,95 L15,35 Z" fill="#fdfcfb" />
+                            <path d="M85,25 L50,85 L50,95 L85,35 Z" fill="#ff7eb3" />
+                            <circle cx="50" cy="20" r="10" fill="#e11d48" />
+                        </svg>
+                    </div>
+                </div>
+                <div id="wish-ui-container" class="mt-12 flex flex-col items-center gap-6 opacity-0 translate-y-4">
+                    <button onclick="triggerAIWish()" id="ai-btn" class="px-8 py-3 glass bg-pink-500/10 hover:bg-pink-500/20 rounded-full text-[10px] tracking-[0.3em] flex items-center gap-4">
+                        <span id="ai-status">MAKE A WISH</span>
+                        <div id="ai-loader" class="hidden w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                    </button>
+                    <div id="wish-display" class="mt-6 max-w-lg text-center italic text-xl text-white/70 px-4 min-h-[4rem] font-light"></div>
+                </div>
+            </section>
+
+            <!-- Transition Section with Synchronized Video & Heart-Shaped Tree -->
+            <section id="surprise-sequence" class="hidden opacity-0 w-full flex flex-col items-center justify-center min-h-screen relative py-16 px-6">
+                
+                <!-- Heart Tree Area matching uploaded photo closely -->
+                <div id="surprise-tree" class="relative w-[340px] h-[360px] flex items-center justify-center mb-8 opacity-0 scale-75 transition-all">
+                    
+                    <!-- Soft Peach Tree Trunk -->
+                    <div id="tree-trunk" class="absolute bottom-0 w-8 h-32 bg-[#ffd1d1] rounded-b-md shadow-inner origin-bottom transform scale-y-0" style="clip-path: polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%);"></div>
+                    
+                    <!-- Canopy (Where programmatically created beautiful pink/red/yellow leaves will bloom) -->
+                    <div id="canopy" class="absolute inset-0 z-10 pointer-events-none"></div>
+
+                    <!-- Beautiful Blue Balloon next to the tree trunk matching the photo -->
+                    <div id="blue-balloon" class="absolute bottom-16 right-2 w-20 h-24 bg-[#3b82f6] rounded-full opacity-0 scale-0 origin-bottom" style="box-shadow: inset -8px -8px 20px rgba(0,0,0,0.25), 0 10px 25px rgba(59, 130, 246, 0.45);">
+                        <!-- Knot -->
+                        <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#2563eb]" style="clip-path: polygon(50% 0%, 0% 100%, 100% 100%);"></div>
+                        <!-- String -->
+                        <svg class="absolute top-[94px] left-1/2 -translate-x-1/2 w-4 h-28 overflow-visible" stroke="#6b7280" stroke-width="1.5" fill="none">
+                            <path d="M 2 0 Q -6 45, 1 90 T 3 130" />
+                        </svg>
+                    </div>
+                </div>
+
+                <h2 id="surprise-text" class="text-4xl md:text-6xl mb-12 opacity-0 translate-y-4 text-center text-pink-300 handwriting-title">just for you...</h2>
+                
+                <!-- Improved Cinematic Video Player: Expanded responsive width, enhanced border, clear interactive z-index, & deep magical backdrop shadow -->
+                <div id="surprise-video-container" class="w-full max-w-4xl aspect-video rounded-3xl overflow-hidden glass border-pink-500/30 shadow-[0_0_80px_rgba(236,72,153,0.4)] opacity-0 scale-95 z-[50] mb-12 relative">
+                    <video id="surprise-video" class="w-full h-full object-cover" controls playsinline>
+                        <source src="video.mp4" type="video/mp4">
+                    </video>
+                </div>
+                
+                <button id="surprise-gift-btn" onclick="scrollToNext('#final-gift')" class="hidden opacity-0 px-10 py-4 glass border-pink-400/40 text-pink-200 text-xs tracking-[0.4em] uppercase font-bold rounded-full hover:bg-pink-500/20 hover:scale-105 transition-all shadow-[0_0_30px_rgba(236,72,153,0.3)] z-[50]">
+                    Your Surprise Gift ✨
+                </button>
+            </section>
+
+            <!-- Final Gift Box -->
+            <section class="min-h-screen flex flex-col items-center justify-center relative p-8 bg-gradient-to-b from-transparent to-black" id="final-gift">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-5xl font-bold mb-4 tracking-tight">Gift for You ❤️</h2>
+                    <p class="text-white/50 text-lg">Click to open.</p>
+                </div>
+                <div class="modern-gift-container" onclick="handleGiftClick()">
+                    <div class="modern-gift-box">
+                        <div class="gift-ribbon-v"></div>
+                        <div class="gift-ribbon-h"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Finale -->
+            <section class="min-h-screen flex flex-col items-center justify-center p-8 text-center" id="finale">
+                <div class="max-w-4xl">
+                    <h1 class="text-5xl md:text-8xl font-bold mb-6 gradient-text">Thank You for Being You ❤️</h1>
+                    <div class="w-24 h-[1px] bg-white/20 mx-auto my-12"></div>
+                    <p class="text-2xl md:text-3xl font-light text-white/60 mb-12 handwriting-font">
+                        Cake ke Niche ek button ha usko press krna mt bhulna.
+                    </p>
+                    <p class="text-white/40 text-[10px] tracking-[0.5em] uppercase">By SHIVAM</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = ""; 
+        let scene, camera, renderer, starPoints;
+        const bgMusic = new Audio("Lauv.mp3");
+        bgMusic.loop = true;
+        bgMusic.volume = 0.3;
+        let isMusicPlaying = false;
+
+        // Custom Voiceover / Sound for message letter
+        const letterAudio = new Audio("Ar.mp3");
+        letterAudio.volume = 0.6;
+
+        let lastX = 0;
+        let lastY = 0;
+        let totalMovement = 0;
+        let sensorActive = true;
+
+        // Microphone Audio variables
+        let audioContext;
+        let analyser;
+        let microphone;
+        let micStream;
+
+        function initThree() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const geometry = new THREE.BufferGeometry();
+            const vertices = [];
+            for (let i = 0; i < 8000; i++) {
+                vertices.push((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20);
+            }
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+            const material = new THREE.PointsMaterial({ size: 0.012, color: 0xffffff, transparent: true, opacity: 0.4 });
+            starPoints = new THREE.Points(geometry, material);
+            scene.add(starPoints);
+            camera.position.z = 5;
+
+            // Start the animation on window load.
+            function animate() {
+                requestAnimationFrame(animate);
+                starPoints.rotation.y += 0.0002;
+                starPoints.rotation.x += 0.0001;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        // Programmatically generate a detailed heart tree canopy matching the user's reference photo
+        function createHeartLeaves() {
+            const canopy = document.getElementById('canopy');
+            if (!canopy) return;
+            canopy.innerHTML = ''; // Clear existing leaves
+
+            // Leaf palette matching uploaded photo: warm pinks, magentas, light pinks, orange, warm yellow, and soft whites
+            const colors = [
+                '#ff4d6d', '#ff758f', '#ff8fa3', '#ffb3c1', // Vibrant Pinks
+                '#e0115f', '#ff2a55', '#d90429', // Deep Rosy Red & Ruby
+                '#ff9f1c', '#ffbf69', '#ffd166', // Sunny Orange & Peach
+                '#fcd34d', '#fef08a', '#f5f5f5'  // Golden Yellow, Soft Creams
+            ];
+
+            const totalHearts = 480; // Highly Dense, beautiful full canopy
+            const leaves = [];
+
+            for (let i = 0; i < totalHearts; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'absolute';
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                // CSS Heart Structure
+                leaf.style.width = '12px';
+                leaf.style.height = '12px';
+                leaf.style.backgroundColor = color;
+                leaf.style.transform = 'rotate(-45deg)';
+                leaf.style.position = 'absolute';
+                
+                // Left & Right ears of the heart leaf
+                leaf.innerHTML = `
+                    <div style="position:absolute; width:12px; height:12px; background-color:${color}; border-radius:50%; top:-6px; left:0;"></div>
+                    <div style="position:absolute; width:12px; height:12px; background-color:${color}; border-radius:50%; left:6px; top:0;"></div>
+                `;
+
+                // Calculate positions using parametric Heart-Curve equations to form a gorgeous heart shape
+                const theta = Math.random() * Math.PI * 2;
+                const r = Math.pow(Math.random(), 0.75); // Distribution bias towards the center with lush edges
+                
+                let x = r * 16 * Math.pow(Math.sin(theta), 3);
+                let y = r * (13 * Math.cos(theta) - 5 * Math.cos(2 * theta) - 2 * Math.cos(3 * theta) - Math.cos(4 * theta));
+                
+                // Map mathematical coordinates to tree layout (Center: 170, Center-Y: 155)
+                const scaleX = 10.2; // Slightly wider, plush canopy
+                const scaleY = 8.2;  // Beautiful proportion matches photo
+                
+                const px = 170 + (x * scaleX) + (Math.random() - 0.5) * 16;
+                const py = 150 - (y * scaleY) + (Math.random() - 0.5) * 16;
+
+                leaf.style.left = `${px}px`;
+                leaf.style.top = `${py}px`;
+                
+                // Hide leaf initially for blooming GSAP animations
+                leaf.style.opacity = '0';
+                leaf.style.transform = `scale(0) rotate(-45deg)`;
+
+                // Store target parameters on dataset
+                leaf.dataset.scale = (Math.random() * 0.45 + 0.75).toFixed(2);
+                leaf.dataset.rotate = (-45 + (Math.random() - 0.5) * 35).toFixed(2);
+                leaf.dataset.dist = Math.hypot(px - 170, py - 150); // For propagation outward
+
+                canopy.appendChild(leaf);
+                leaves.push(leaf);
+            }
+
+            // Sort leaves by distance to trigger concentric blooming
+            leaves.sort((a, b) => parseFloat(a.dataset.dist) - parseFloat(b.dataset.dist));
+            return leaves;
+        }
+
+        window.addEventListener('load', () => {
+            initThree();
+            gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+            gsap.timeline()
+              .to("#loader-text", { opacity: 1, duration: 1 })
+              .to("#loader-bar", { width: "100%", duration: 2, ease: "power2.inOut" })
+              .to("#entry-btn", { display: "block", opacity: 1, scale: 1, duration: 1 });
+
+            const dot = document.getElementById('cursor-dot');
+            const ring = document.getElementById('cursor-ring');
+            const flame = document.getElementById('cake-flame');
+            const sensor = document.getElementById('blow-sensor');
+
+            document.addEventListener('mousemove', (e) => {
+                gsap.to(dot, { x: e.clientX, y: e.clientY, duration: 0 });
+                gsap.to(ring, { x: e.clientX - 17, y: e.clientY - 17, duration: 0.15 });
+
+                if (sensorActive) {
+                    const rect = sensor.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    const distToCenter = Math.hypot(e.clientX - centerX, e.clientY - centerY);
+                    const speed = Math.hypot(e.clientX - lastX, e.clientY - lastY);
+                    
+                    if (distToCenter < 180) {
+                        const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+                        const tilt = Math.min(35, 5000 / distToCenter); 
+                        const tiltX = Math.cos(angle) * (tilt / 1.2);
+                        const jitterIntensity = Math.min(15, speed * 0.5);
+                        const jitterX = (Math.random() - 0.5) * jitterIntensity;
+                        const jitterY = (Math.random() - 0.5) * jitterIntensity;
+                        const rotation = ((e.clientX - centerX) / 3) + ((Math.random() - 0.5) * speed * 2);
+                        
+                        gsap.to(flame, {
+                            rotate: rotation,
+                            x: tiltX + jitterX,
+                            y: jitterY,
+                            scaleY: 1 + (tilt / 100) - (speed / 80),
+                            scaleX: 1 - (speed / 120),
+                            duration: 0.05,
+                            ease: "none"
+                        });
+                        totalMovement += speed;
+                        if (totalMovement > 1500) {
+                            blowCandle();
+                            sensorActive = false;
+                        }
+                    } else {
+                        gsap.to(flame, { rotate: 0, x: 0, y: 0, scaleY: 1, scaleX: 1, duration: 0.5 });
+                        totalMovement = Math.max(0, totalMovement - 15);
+                    }
+                }
+                lastX = e.clientX;
+                lastY = e.clientY;
+            });
+
+            gsap.utils.toArray(".memory-item").forEach(item => {
+                const direction = item.getAttribute('data-direction');
+                const xVal = direction === 'left' ? -150 : 150;
+
+                gsap.from(item, {
+                    x: xVal,
+                    opacity: 0,
+                    duration: 1.5,
+                    scrollTrigger: {
+                        trigger: item,
+                        start: "top 85%",
+                        toggleActions: "play none none none"
+                    }
+                });
+                
+                const visual = item.querySelector('.memory-visual');
+                gsap.from(visual, {
+                    scale: 0.8,
+                    rotate: direction === 'left' ? -5 : 5,
+                    duration: 2,
+                    ease: "elastic.out(1, 0.5)",
+                    scrollTrigger: {
+                        trigger: item,
+                        start: "top 85%"
+                    }
+                });
+            });
+
+            // Initialize background music controls for Fragment Videos
+            initFragmentVideosControls();
+        });
+
+        // Set up viewport automatic play/pause for Fragment Videos
+        function initFragmentVideosControls() {
+            const memoryVideos = document.querySelectorAll('.memory-video-element');
+            
+            // Set up an intersection observer to trigger play/pause dynamically depending on viewport
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15 // Start playing as soon as 15% of the video container is visible
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const video = entry.target;
+                    if (entry.isIntersecting) {
+                        video.play().catch(err => {
+                            console.log("Muted video autoplay is pending user interaction or blocked:", err);
+                        });
+                    } else {
+                        video.pause();
+                    }
+                });
+            }, observerOptions);
+
+            memoryVideos.forEach(vid => {
+                vid.muted = true; // Ensure video is strictly muted for absolute background playback coexistence
+                observer.observe(vid);
+            });
+        }
+
+        document.getElementById('entry-btn').addEventListener('click', () => {
+            gsap.to("#loader", { y: "-100%", duration: 1.2, ease: "power4.inOut" });
+            gsap.to("#hero-ui", { opacity: 1, y: 0, duration: 1, delay: 1 });
+            document.getElementById('audio-control').classList.remove('hidden');
+            bgMusic.play().then(() => {
+                isMusicPlaying = true;
+                document.getElementById('audio-icon').innerText = "🔊";
+            }).catch(() => {});
+        });
+
+        function blowCandle() {
+            const flame = document.getElementById('cake-flame');
+            const cakeSlicePath = document.getElementById('cake-slice-path');
+            const fallingSlice = document.getElementById('falling-slice');
+            const seqContainer = document.getElementById('surprise-sequence');
+
+            // Exiting flame cleanly
+            gsap.to(flame, { opacity: 0, scale: 0, y: -100, duration: 0.4, ease: "power2.out" });
+            confetti({ particleCount: 300, spread: 160, origin: { y: 0.6 } });
+            
+            // Unhide surprise-sequence section so it occupies space on the page
+            seqContainer.classList.remove('hidden');
+            gsap.set(seqContainer, { opacity: 1 });
+
+            // Generate dense heart leaves dynamically
+            createHeartLeaves();
+
+            // Slice slides out of the cake & tumbles downwards
+            // Simultaneous window scroll tracks the falling piece downward in synchronization
+            const tl = gsap.timeline();
+            
+            tl.to(cakeSlicePath, { x: -30, y: 5, rotate: -5, opacity: 0, duration: 0.8, ease: "power2.inOut" })
+              .to(fallingSlice, { 
+                  opacity: 1, 
+                  y: window.innerHeight * 0.9, // Falls across the viewport height
+                  x: -180, 
+                  rotation: 360, 
+                  scale: 1.5,
+                  duration: 2.2, 
+                  ease: "power1.inOut" 
+              }, "-=0.4")
+              // SCROLL DOWN MATCHING THE FALLING PIECE
+              .to(window, { 
+                  duration: 2.2, 
+                  scrollTo: "#surprise-sequence", 
+                  ease: "power1.inOut" 
+              }, "-=2.2")
+              .to(fallingSlice, { 
+                  opacity: 0, 
+                  scale: 0, 
+                  duration: 0.4, 
+                  onComplete: () => {
+                      gsap.to("#wish-ui-container", { opacity: 1, y: 0, duration: 1 });
+                      // Trigger Sprouting & blooming sequences on the tree
+                      runSproutAndVideo();
+                  }
+              });
+        }
+
+        function runSproutAndVideo() {
+            const targetTree = document.getElementById('surprise-tree');
+            const trunk = document.getElementById('tree-trunk');
+            const balloon = document.getElementById('blue-balloon');
+            const targetText = document.getElementById('surprise-text');
+            const videoCont = document.getElementById('surprise-video-container');
+            const videoElement = document.getElementById('surprise-video');
+            const surpriseBtn = document.getElementById('surprise-gift-btn');
+
+            const sortedLeaves = document.querySelectorAll('#canopy > div');
+
+            const tl = gsap.timeline();
+
+            tl.to(targetTree, { opacity: 1, scale: 1, duration: 0.5 })
+              // Sprouting tree trunk up
+              .to(trunk, { scaleY: 1, duration: 1.2, ease: "power3.out" })
+              // Blooming 480 heart leaves with beautiful organic concentric propagation
+              .to(sortedLeaves, {
+                  opacity: 0.95,
+                  scale: (idx, target) => parseFloat(target.dataset.scale),
+                  rotate: (idx, target) => parseFloat(target.dataset.rotate),
+                  duration: 1.6,
+                  ease: "back.out(1.5)",
+                  stagger: {
+                      amount: 1.5,
+                      from: "start"
+                  }
+              }, "-=0.4")
+              // Inflating the blue balloon
+              .to(balloon, {
+                  opacity: 1,
+                  scale: 1,
+                  duration: 1.6,
+                  ease: "elastic.out(1, 0.6)",
+                  onComplete: () => {
+                      // Floating physics on balloon
+                      gsap.to(balloon, {
+                          y: -12,
+                          x: 4,
+                          duration: 3,
+                          yoyo: true,
+                          repeat: -1,
+                          ease: "sine.inOut"
+                      });
+                  }
+              }, "-=1.8")
+              // Fading text "just for you..." smoothly
+              .to(targetText, { opacity: 1, y: 0, duration: 1.2, ease: "power2.out" }, "-=0.8")
+              // Fade in the dark cinematic backdrop overlay (keeps video pristine and perfectly readable)
+              .to("#video-backdrop-overlay", { opacity: 1, pointerEvents: "auto", duration: 1 }, "+=0.2")
+              .to(videoCont, { 
+                  opacity: 1, scale: 1, duration: 1, ease: "power3.out",
+                  onComplete: () => { 
+                      // Automatic music pause/fade during surprise video
+                      if (isMusicPlaying) {
+                          gsap.to(bgMusic, { volume: 0, duration: 1.5, onComplete: () => bgMusic.pause() });
+                      }
+                      videoElement.play().catch(() => {}); 
+                  }
+              }, "-=1")
+              // AUTOMATICALLY SCROLL DOWN TO FOCUS THE SURPRISE VIDEO AS IT PLAYS
+              .to(window, {
+                  duration: 1.5,
+                  scrollTo: { y: "#surprise-video-container", offsetY: 20 },
+                  ease: "power2.inOut"
+              }, "-=0.5");
+
+            videoElement.onended = () => {
+                // Fade out backdrop overlay cleanly
+                gsap.to("#video-backdrop-overlay", { opacity: 0, pointerEvents: "none", duration: 0.8 });
+                surpriseBtn.classList.remove('hidden');
+                gsap.to(surpriseBtn, { opacity: 1, duration: 1, ease: "power2.out" });
+                
+                if (isMusicPlaying) {
+                    bgMusic.play();
+                    gsap.to(bgMusic, { volume: 0.3, duration: 2 });
+                }
+            };
+        }
+
+        // Action when opening the letter overlay
+        function handleGiftClick() {
+            const overlay = document.getElementById('letter-overlay');
+            const main = document.getElementById('main-content');
+            overlay.classList.remove('hidden');
+            main.classList.add('content-blur');
+            gsap.to(overlay, { opacity: 1, pointerEvents: "all", duration: 0.8, ease: "power2.out" });
+            confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+
+            // Stop background music and trigger specialized letter audio
+            if (isMusicPlaying && !bgMusic.paused) {
+                bgMusic.pause();
+            }
+            letterAudio.currentTime = 0;
+            letterAudio.play().catch(e => console.log("Letter audio playback blocked/failed:", e));
+        }
+
+        // Action when closing the letter overlay
+        function closeLetter() {
+            const overlay = document.getElementById('letter-overlay');
+            const main = document.getElementById('main-content');
+            main.classList.remove('content-blur');
+            gsap.to(overlay, { 
+                opacity: 0, pointerEvents: "none", duration: 0.5,
+                onComplete: () => overlay.classList.add('hidden')
+            });
+
+            // Pause letter audio and resume background music seamlessly
+            letterAudio.pause();
+            if (isMusicPlaying && bgMusic.paused) {
+                bgMusic.play().catch(e => console.log("Bg music resumption failed:", e));
+            }
+        }
+
+        function toggleAudio() {
+            if (bgMusic.paused) { 
+                bgMusic.play(); 
+                isMusicPlaying = true;
+                document.getElementById('audio-icon').innerText = "🔊"; 
+            } else { 
+                bgMusic.pause(); 
+                isMusicPlaying = false;
+                document.getElementById('audio-icon').innerText = "🔇"; 
+            }
+        }
+
+        function scrollToNext(id) {
+            gsap.to(window, { duration: 1.5, scrollTo: id, ease: "power3.inOut" });
+        }
+
+        async function triggerAIWish() {
+            const status = document.getElementById('ai-status');
+            const loader = document.getElementById('ai-loader');
+            const display = document.getElementById('wish-display');
+            status.innerText = "READING THE PULSE OF STARS...";
+            loader.classList.remove('hidden');
+            const prompt = "Write a beautiful one-sentence birthday wish for a best friend(also crush keep a bit firlty). Keep it under 25 words.";
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                const data = await res.json();
+                display.innerText = data.candidates[0].content.parts[0].text;
+                gsap.fromTo(display, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 1 });
+            } catch (e) {
+                display.innerText = "Your Wish has been safely sent to the universe.Now Whole Universe will work to fulfill your wish, So now just smile beacuse beautiful soul like yours deserve wishes that truly come true ❤️";
+            } finally {
+                status.innerText = "WISH GRANTED";
+                loader.classList.add('hidden');
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
